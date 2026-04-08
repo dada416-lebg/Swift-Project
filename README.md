@@ -1,99 +1,99 @@
 # Game Tracker 🎮
 
-Application web de suivi de jeux vidéo écrite en **Swift**, exécutable directement dans **GitHub Codespaces** — sans Xcode ni macOS requis.
+A web application to track video games, written in **Swift**, runnable directly in **GitHub Codespaces** — no Xcode or macOS required.
 
-Le serveur web est alimenté par **Hummingbird**, les données sont persistées dans **SQLite**, et l'interface est rendue en HTML côté serveur directement dans le navigateur.
-
----
-
-## Fonctionnalités
-
-- Affichage de la liste de tous les jeux enregistrés
-- Ajout d'un nouveau jeu via un formulaire
-- Marquage d'un jeu comme **terminé** ou **non terminé**
-- Persistance des données dans une base SQLite locale (`db.sqlite3`)
+The web server is powered by **Hummingbird**, data is persisted in **SQLite**, and the interface is rendered as HTML server-side directly in the browser.
 
 ---
 
-## Structure du projet
+## Features
+
+- Display the full list of registered games
+- Add a new game via a form
+- Mark a game as **completed** or **not completed**
+- Persistent data storage in a local SQLite database (`db.sqlite3`)
+
+---
+
+## Project Structure
 
 ```
 .devcontainer/
-  devcontainer.json       # Configuration Codespaces (Swift 6.2, extensions VS Code, port forwarding)
+  devcontainer.json       # Codespaces config (Swift 6.2, VS Code extensions, port forwarding)
 Sources/App/
-  main.swift              # Point d'entrée — démarrage du serveur et définition des routes HTTP
-  Models.swift            # Modèle de données : struct GameItem
-  Database.swift          # Initialisation SQLite et requêtes (lecture, ajout, toggle)
-  Views.swift             # Rendu HTML des pages renvoyées au navigateur
-Package.swift             # Définition du package Swift (dépendances, cibles de build)
-build.sh                  # Script utilitaire : résolution des dépendances + compilation
-run.sh                    # Script utilitaire : démarrage du serveur
+  main.swift              # Entry point — server startup and HTTP route definitions
+  Models.swift            # Data model: GameItem struct
+  Database.swift          # SQLite setup and queries (fetch, add, toggle)
+  Views.swift             # HTML page rendering returned to the browser
+Package.swift             # Swift package definition (dependencies, build targets)
+build.sh                  # Helper script: resolve dependencies + compile
+run.sh                    # Helper script: start the server
 ```
 
 ---
 
-## Lancer le projet
+## Running the Project
 
-### 1. Ouvrir dans GitHub Codespaces
+### 1. Open in GitHub Codespaces
 
-1. Dans ton dépôt, clique sur le bouton vert **Code**.
-2. Ouvre l'onglet **Codespaces** et clique sur **Create codespace on main**.
-3. Attends que le conteneur se construise — le premier démarrage télécharge l'image Docker Swift (~1 Go) et exécute `swift package resolve` automatiquement.
+1. In your repository, click the green **Code** button.
+2. Open the **Codespaces** tab and click **Create codespace on main**.
+3. Wait for the container to build — the first start downloads the Swift Docker image (~1 GB) and runs `swift package resolve` automatically.
 
-Une fois prêt, VS Code s'ouvre dans le navigateur avec Swift entièrement configuré.
+Once ready, VS Code opens in the browser with Swift fully configured.
 
-### 2. Compiler
+### 2. Build
 
 ```bash
 ./build.sh
 ```
 
-### 3. Démarrer le serveur
+### 3. Start the server
 
 ```bash
 ./run.sh
 ```
 
-Codespaces détecte que le port **8080** est utilisé et affiche une popup — clique sur **Open in Browser** (ou retrouve-le dans l'onglet **Ports**).
+Codespaces detects that port **8080** is in use and shows a popup — click **Open in Browser** (or find it under the **Ports** tab).
 
-> Pour arrêter le serveur : `Ctrl + C`
+> To stop the server: `Ctrl + C`
 
 ---
 
-## Comment ça fonctionne
+## How It Works
 
 ```
-Navigateur  →  Requête HTTP
-                    ↓
-              main.swift  (le routeur Hummingbird intercepte la route)
-                    ↓
-              Database.swift  (SQLite.swift lit/écrit dans db.sqlite3)
-                    ↓
-              Views.swift  (construit une page HTML à partir des données)
-                    ↓
-              Réponse HTTP  →  Le navigateur affiche la page
+Browser  →  HTTP Request
+                ↓
+          main.swift  (Hummingbird router matches the route)
+                ↓
+          Database.swift  (SQLite.swift reads/writes db.sqlite3)
+                ↓
+          Views.swift  (builds an HTML page from the data)
+                ↓
+          HTTP Response  →  Browser renders the page
 ```
 
-| Couche              | Fichier           | Technologie                                                              |
-|---------------------|-------------------|--------------------------------------------------------------------------|
-| Serveur & routing   | `main.swift`      | [Hummingbird 2](https://github.com/hummingbird-project/hummingbird)      |
-| Modèle de données   | `Models.swift`    | Swift `struct`                                                           |
-| Base de données     | `Database.swift`  | [SQLite.swift](https://github.com/stephencelis/SQLite.swift)             |
-| Interface / HTML    | `Views.swift`     | HTML généré côté serveur + [Pico CSS](https://picocss.com)               |
+| Layer             | File             | Technology                                                               |
+|-------------------|------------------|--------------------------------------------------------------------------|
+| Server & routing  | `main.swift`     | [Hummingbird 2](https://github.com/hummingbird-project/hummingbird)      |
+| Data model        | `Models.swift`   | Swift `struct`                                                           |
+| Database          | `Database.swift` | [SQLite.swift](https://github.com/stephencelis/SQLite.swift)             |
+| UI / HTML         | `Views.swift`    | Server-side HTML + [Pico CSS](https://picocss.com)                       |
 
 ---
 
-## Routes HTTP
+## HTTP Routes
 
-| Méthode | Route          | Description                              |
-|---------|----------------|------------------------------------------|
-| `GET`   | `/`            | Affiche la liste de tous les jeux        |
-| `POST`  | `/add`         | Ajoute un nouveau jeu (formulaire HTML)  |
-| `POST`  | `/toggle/:id`  | Inverse l'état terminé/non terminé du jeu |
+| Method | Route         | Description                               |
+|--------|---------------|-------------------------------------------|
+| `GET`  | `/`           | Displays the full list of games           |
+| `POST` | `/add`        | Adds a new game (HTML form submission)    |
+| `POST` | `/toggle/:id` | Toggles the completed/not completed state |
 
 ---
 
-## Modèle de données
+## Data Model
 
 ```swift
 struct GameItem: Codable, Sendable {
@@ -103,41 +103,41 @@ struct GameItem: Codable, Sendable {
 }
 ```
 
-La table SQLite correspondante :
+Corresponding SQLite table:
 
-| Colonne        | Type    | Description                      |
-|----------------|---------|----------------------------------|
-| `id`           | INTEGER | Clé primaire, auto-incrémentée   |
-| `title`        | TEXT    | Nom du jeu                       |
-| `is_completed` | BOOLEAN | Jeu terminé (true) ou non (false)|
-
----
-
-## Concepts Swift illustrés
-
-| Concept              | Où l'observer                                              |
-|----------------------|------------------------------------------------------------|
-| `struct`             | `Models.swift`, `Database.swift`, `Views.swift`            |
-| `async/await`        | `main.swift` — `app.runService()`, handlers de routes      |
-| Closures             | `main.swift` — blocs `{ request, context in ... }`         |
-| Conformance protocol | `Views.swift` — `HTML: ResponseGenerator`                  |
-| `throws` / `try`     | `Database.swift` — tous les appels base de données         |
-| Extensions           | `Database.swift` — `Connection: @unchecked Sendable`       |
+| Column         | Type    | Description                         |
+|----------------|---------|-------------------------------------|
+| `id`           | INTEGER | Primary key, auto-incremented       |
+| `title`        | TEXT    | Game title                          |
+| `is_completed` | BOOLEAN | Game completed (true) or not (false)|
 
 ---
 
-## Étendre le projet
+## Swift Concepts Illustrated
 
-### `Models.swift` — Enrichir le modèle
+| Concept              | Where to find it                                          |
+|----------------------|-----------------------------------------------------------|
+| `struct`             | `Models.swift`, `Database.swift`, `Views.swift`           |
+| `async/await`        | `main.swift` — `app.runService()`, route handlers         |
+| Closures             | `main.swift` — `{ request, context in ... }` blocks       |
+| Protocol conformance | `Views.swift` — `HTML: ResponseGenerator`                 |
+| `throws` / `try`     | `Database.swift` — all database calls                     |
+| Extensions           | `Database.swift` — `Connection: @unchecked Sendable`      |
 
-Ajoute des champs supplémentaires à `GameItem` selon tes besoins :
+---
+
+## Extending the Project
+
+### `Models.swift` — Enrich the model
+
+Add extra fields to `GameItem` as needed:
 
 ```swift
 struct GameItem: Codable, Sendable {
     let id: Int64?
     var title: String
     var isCompleted: Bool
-    // Exemples d'extensions :
+    // Examples:
     // var platform: String
     // var rating: Int
     // var genre: String
@@ -145,33 +145,33 @@ struct GameItem: Codable, Sendable {
 }
 ```
 
-### `Database.swift` — Nouvelles requêtes
+### `Database.swift` — New queries
 
-Mets à jour les colonnes de la table et ajoute des fonctions pour les nouvelles opérations (filtrage, suppression, mise à jour de champs).
+Update the table columns to match your model, and add functions for new operations (filtering, deleting, updating fields).
 
-### `Views.swift` — Modifier l'interface
+### `Views.swift` — Change the UI
 
-Adapte `renderIndex(items:)` pour afficher tes données différemment. Ajoute de nouvelles fonctions `render...()` pour des pages supplémentaires.
+Modify `renderIndex(items:)` to display your data differently. Add new `render...()` functions for additional pages.
 
-### `main.swift` — Ajouter des routes
+### `main.swift` — Add routes
 
-Enregistre de nouvelles routes en suivant le pattern existant :
+Register new routes following the existing pattern:
 
 ```swift
 router.get("/my-page") { _, _ -> HTML in
-    // récupère les données et retourne une View
+    // fetch data, return a View
 }
 
 router.post("/my-action") { request, context -> Response in
-    // traite la soumission d'un formulaire
+    // handle form submission
 }
 ```
 
 ---
 
-## Dépannage
+## Troubleshooting
 
-**Le port 8080 est déjà utilisé**
+**Port 8080 is already in use**
 
 ```bash
 lsof -i :8080
@@ -179,20 +179,20 @@ kill <PID>
 ./run.sh
 ```
 
-**Erreur `error: 'App' product not found` ou erreur de build au premier lancement**
+**`error: 'App' product not found` or build errors on first open**
 
 ```bash
 swift package resolve
 ./build.sh
 ```
 
-**Le Codespace est lent au démarrage**
+**Codespace is slow to start**
 
-Le premier build télécharge l'image Docker Swift (~1 Go). Les démarrages suivants sont bien plus rapides car l'image est mise en cache.
+The first build downloads the Swift Docker image (~1 GB). Subsequent starts are much faster because the image is cached.
 
-**Les modifications ne s'affichent pas dans le navigateur**
+**Changes not showing in the browser**
 
-Le serveur doit être redémarré après chaque modification du code :
+The server must be restarted after every code change:
 
 ```bash
 Ctrl + C
@@ -202,10 +202,10 @@ Ctrl + C
 
 ---
 
-## Technologies utilisées
+## Tech Stack
 
 - Swift 6.2
-- Hummingbird 2 (serveur web)
-- SQLite.swift (accès base de données)
-- Pico CSS (style HTML minimal)
-- GitHub Codespaces (environnement de développement)
+- Hummingbird 2 (web server)
+- SQLite.swift (database access)
+- Pico CSS (minimal HTML styling)
+- GitHub Codespaces (development environment)
